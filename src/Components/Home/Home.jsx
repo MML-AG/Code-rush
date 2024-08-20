@@ -14,53 +14,72 @@ import { Button, ButtonGroup, Image, Tabs, Tab } from "@nextui-org/react";
 import image from "/bgimg.jpg";
 import { useNavigate } from "react-router-dom";
 
+import React, { useEffect, useContext } from 'react'
+import Button from './components/Button'
+import CountdownAnimation from './components/CountdownAnimation'
+import SetPomodoro from './components/SetPomodoro'
+import { SettingsContext } from './context/SettingsContext'
+
 import Arrow from "../../../public/Arrow";
 
 import { useAuth0 } from "@auth0/auth0-react";
 const base = import.meta.env.BASE_URL;
 
-const core = [
-  {
-    src: "/images/Event1.jpg",
-    id: "e1",
-    name: "Recycling Camp",
-    post: "2/8/24",
-    link: "https://youtu.be/4rcWLy2MgDQ?si=C24o5UTFjjLNBPtY",
-    desc: "At GVI, we are passionate about promoting environmental sustainability through our Recycling Camp initiative. This camp is designed to educate participants of all ages about the importance of recycling, waste reduction, and responsible waste management practices.",
-  },
-  {
-    src: "/images/Event2.jpg",
-    id: "e2",
-    name: "Project Paws",
-    post: "9/8/24",
-    link: "https://youtu.be/lmboaugl6zg?si=CZquRY4XrcXtBarb",
-    desc: "Project Paws is a compassionate initiative aimed at improving the lives of street dogs through humane and proactive measures. Our mission is to provide essential care, medical attention, and shelter to stray dogs in need. By rescuing and rehabilitating these animals, we strive to reduce their suffering and ensure they lead healthier, happier lives. ",
-  },
-  {
-    src: "/images/Event3.jpg",
-    id: "e3",
-    name: "Go EV",
-    post: "16/8/24",
-    link: "https://youtu.be/0sMKYut0pmQ?si=uhYkGfTgcW7RXgok",
-    desc: "Go EV! stands as a powerful call to action in the global movement towards sustainable transportation. As we face unprecedented environmental challenges, transitioning to electric vehicles (EVs) represents a pivotal step towards reducing carbon emissions, improving air quality, and securing a cleaner future for generations to come.",
-  },
-  {
-    src: "/images/Event4.jpg",
-    id: "e4",
-    name: "Tree Plantation",
-    post: "24/8/24",
-    link: "https://youtu.be/uTAVw1sbpno?si=j7oPD7X-f46oYbOE",
-    desc: "At GVI, we are committed to environmental stewardship and sustainability. Our Plantation Drive is a proactive initiative aimed at combating climate change and enhancing our ecosystem through the planting of trees and native vegetation.",
-  },
-  {
-    src: "/images/Event5.jpg",
-    id: "e5",
-    name: "Clean the Beech Mission",
-    post: "31/8/24",
-    link: "https://youtu.be/JtGsdiYdObQ?si=y8sm6FnWbQWotX_w",
-    desc: "GVI invites you to participate in our Beach Cleaning event, where we come together to protect and preserve our coastal environments. This initiative is part of our commitment to environmental conservation and ensuring our beaches remain clean and beautiful for everyone to enjoy.",
-  },
-];
+// const core = [
+//   {
+//     src: "/images/Event1.jpg",
+//     id: "e1",
+//     name: "Recycling Camp",
+//     post: "2/8/24",
+//     link: "https://youtu.be/4rcWLy2MgDQ?si=C24o5UTFjjLNBPtY",
+//     desc: "At GVI, we are passionate about promoting environmental sustainability through our Recycling Camp initiative. This camp is designed to educate participants of all ages about the importance of recycling, waste reduction, and responsible waste management practices.",
+//   },
+//   {
+//     src: "/images/Event2.jpg",
+//     id: "e2",
+//     name: "Project Paws",
+//     post: "9/8/24",
+//     link: "https://youtu.be/lmboaugl6zg?si=CZquRY4XrcXtBarb",
+//     desc: "Project Paws is a compassionate initiative aimed at improving the lives of street dogs through humane and proactive measures. Our mission is to provide essential care, medical attention, and shelter to stray dogs in need. By rescuing and rehabilitating these animals, we strive to reduce their suffering and ensure they lead healthier, happier lives. ",
+//   },
+//   {
+//     src: "/images/Event3.jpg",
+//     id: "e3",
+//     name: "Go EV",
+//     post: "16/8/24",
+//     link: "https://youtu.be/0sMKYut0pmQ?si=uhYkGfTgcW7RXgok",
+//     desc: "Go EV! stands as a powerful call to action in the global movement towards sustainable transportation. As we face unprecedented environmental challenges, transitioning to electric vehicles (EVs) represents a pivotal step towards reducing carbon emissions, improving air quality, and securing a cleaner future for generations to come.",
+//   },
+//   {
+//     src: "/images/Event4.jpg",
+//     id: "e4",
+//     name: "Tree Plantation",
+//     post: "24/8/24",
+//     link: "https://youtu.be/uTAVw1sbpno?si=j7oPD7X-f46oYbOE",
+//     desc: "At GVI, we are committed to environmental stewardship and sustainability. Our Plantation Drive is a proactive initiative aimed at combating climate change and enhancing our ecosystem through the planting of trees and native vegetation.",
+//   },
+//   {
+//     src: "/images/Event5.jpg",
+//     id: "e5",
+//     name: "Clean the Beech Mission",
+//     post: "31/8/24",
+//     link: "https://youtu.be/JtGsdiYdObQ?si=y8sm6FnWbQWotX_w",
+//     desc: "GVI invites you to participate in our Beach Cleaning event, where we come together to protect and preserve our coastal environments. This initiative is part of our commitment to environmental conservation and ensuring our beaches remain clean and beautiful for everyone to enjoy.",
+//   },
+// ];
+
+const {
+  pomodoro,
+  executing,
+  startAnimate,
+  children,
+  startTimer,
+  pauseTimer,
+  updateExecute,
+  setCurrentTimer,
+  SettingsBtn } = useContext(SettingsContext)
+
+useEffect(() => { updateExecute(executing) }, [executing, startAnimate])
 
 const item = {
   hidden: { opacity: 0, scale: 0.75 },
@@ -102,13 +121,52 @@ function Component() {
           )}
 
           {!isAuthenticated && (
-            <div>
-              <Image
-                draggable={false}
-                src={base + "logoNT.png"}
-                width={450}
-                className=""
-              />
+            <div><div>
+              <h1>Pomodoro</h1>
+              <small>Be productive the right way.</small>
+              {pomodoro !== 0 ?
+                <>
+                  <ul className="labels">
+                    <li>
+                      <Button
+                        title="Work"
+                        activeClass={executing.active === 'work' ? 'active-label' : undefined}
+                        _callback={() => setCurrentTimer('work')}
+                      />
+                    </li>
+                    <li>
+                      <Button
+                        title="Short Break"
+                        activeClass={executing.active === 'short' ? 'active-label' : undefined}
+                        _callback={() => setCurrentTimer('short')}
+                      />
+                    </li>
+                    <li>
+                      <Button
+                        title="Long Break"
+                        activeClass={executing.active === 'long' ? 'active-label' : undefined}
+                        _callback={() => setCurrentTimer('long')}
+                      />
+                    </li>
+                  </ul>
+                  <Button title="Settings" _callback={SettingsBtn} />
+                  <div className="timer-container">
+                    <div className="time-wrapper">
+                      <CountdownAnimation
+                        key={pomodoro}
+                        timer={pomodoro}
+                        animate={startAnimate}
+                      >
+                        {children}
+                      </CountdownAnimation>
+                    </div>
+                  </div>
+                  <div className="button-wrapper">
+                    <Button title="Start" activeClass={!startAnimate ? 'active' : undefined} _callback={startTimer} />
+                    <Button title="Pause" activeClass={startAnimate ? 'active' : undefined} _callback={pauseTimer} />
+                  </div>
+                </> : <SetPomodoro />}
+              </div>
               <h1 className="text-5xl">
                 Plan<span className="text-6xl">.</span> Pursue
                 <span className="text-6xl">.</span> Progress
@@ -119,7 +177,7 @@ function Component() {
         </div>
       </div>
 
-      
+
 
       {isAuthenticated && (
         <div>
